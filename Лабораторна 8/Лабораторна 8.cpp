@@ -1,61 +1,58 @@
-﻿#include <iostream>
+#include <iostream>
+#include <vector>
 #include <algorithm>
-
-int countElementsLessThan3(int arr[], int n) {
-    int count = 0;
-    for (int i = 0; i < n; ++i) {
-        if (arr[i] < 3) {
-            count++;
-        }
-    }
-    return count;
-}
-
-int sumInt(int arr[], int n) {
-    int sum = 0;
-    int lastNegativeIndex = -1;
-
-    for (int i = 0; i < n; ++i) {
-        if (arr[i] < 0) {
-            lastNegativeIndex = i;
-        }
-    }
-
-    if (lastNegativeIndex != -1) {
-        for (int i = lastNegativeIndex + 1; i < n; ++i) {
-            sum += static_cast<int>(arr[i]);
-        }
-    }
-
-    return sum;
-}
-
-void transformArray(int arr[], int n) {
-    int maxElement = *std::max_element(arr, arr + n);
-
-    std::sort(arr, arr + n, [maxElement](int a, int b) {
-        return std::abs(a - maxElement) < 0.2 * maxElement;
-        });
-}
-
+#include <numeric>
+using namespace std;
 int main() {
-    const int n = 10; 
-    int myArray[n] = { 1, -2, 5, -3, 0, 4, 6, 2, 1, 7 };
+    
+    int n;
+    std::cout << "Enter the size of the array: ";
+    std::cin >> n;
 
     
-    int countLessThan3 = countElementsLessThan3(myArray, n);
-    std::cout << "Number of array elements less than 3: " << countLessThan3 << std::endl;
-
-    
-    int sumAfterLastNegative = sumInt(myArray, n);
-    std::cout << "The sum of the integer parts of the elements after the last negative one: " << sumAfterLastNegative << std::endl;
-
-    
-    transformArray(myArray, n);
-    std::cout << "Array after conversion: ";
+    std::vector<int> arr(n);
+    std::cout << "Enter the elements of the array:" << std::endl;
     for (int i = 0; i < n; ++i) {
-        std::cout << myArray[i] << " ";
+        std::cin >> arr[i];
     }
+
+    
+    int countLessThan3 = std::count_if(arr.begin(), arr.end(), [](int x) { return x < 3; });
+    std::cout << "1. Number of elements less than 3: " << countLessThan3 << std::endl;
+
+   
+    auto lastNegative = std::find_if(arr.rbegin(), arr.rend(), [](int x) { return x < 0; });
+    if (lastNegative != arr.rend()) {
+        int sumAfterLastNegative = std::accumulate(lastNegative.base(), arr.end(), 0);
+        std::cout << "2. Sum of integers after the last negative element: " << sumAfterLastNegative << std::endl;
+    }
+    else {
+        std::cout << "2. No negative elements found." << std::endl;
+    }
+
+    
+    auto maxElement = *std::max_element(arr.begin(), arr.end());
+    std::transform(arr.begin(), arr.end(), arr.begin(), [maxElement](int x) {
+        if (x != maxElement && std::abs(x - maxElement) <= 0.2 * maxElement) {
+            return x;
+        }
+        else {
+            return maxElement + 1; 
+        }
+        });
+
+   
+    auto partitionPoint = std::partition(arr.begin(), arr.end(), [maxElement](int x) {
+        return x != maxElement && std::abs(x - maxElement) <= 0.2 * maxElement;
+        });
+
+    
+    std::cout << "3. Transformed array:" << std::endl;
+    for (const auto& element : arr) {
+        std::cout << element << " ";
+    }
+    std::cout << std::endl;
 
     return 0;
 }
+
